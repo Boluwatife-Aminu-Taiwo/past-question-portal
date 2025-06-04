@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 export default function UploadForm() {
   const [courseCode, setCourseCode] = useState("");
@@ -9,7 +9,7 @@ export default function UploadForm() {
     e.preventDefault();
 
     if (!courseCode || !file) {
-      setMessage("Please provide course code and select a file.");
+      setMessage("Please provide course code and file.");
       return;
     }
 
@@ -18,48 +18,58 @@ export default function UploadForm() {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/upload", {
+      const res = await fetch("http://127.0.0.1:8000/upload", {
         method: "POST",
         body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (res.ok) {
+        const data = await res.json();
         setMessage(`Upload successful! Record ID: ${data.id}`);
+        setCourseCode("");
+        setFile(null);
       } else {
         setMessage("Upload failed.");
       }
-    } catch (error) {
+    } catch (err) {
       setMessage("Error uploading file.");
-      console.error(error);
+      console.error(err);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
-      <div>
-        <label>Course Code:</label><br />
+    <form onSubmit={handleSubmit} className="bg-white shadow-md p-6 rounded w-full max-w-md mx-auto">
+      <h2 className="text-xl font-semibold mb-4">Upload Form</h2>
+
+      <div className="mb-4">
+        <label className="block mb-1 font-medium">Course Code</label>
         <input
           type="text"
           value={courseCode}
           onChange={(e) => setCourseCode(e.target.value)}
           required
-          style={{ width: "100%" }}
+          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       </div>
 
-      <div style={{ marginTop: 10 }}>
-        <label>Past Question File:</label><br />
+      <div className="mb-4">
+        <label className="block mb-1 font-medium">File</label>
         <input
           type="file"
           onChange={(e) => setFile(e.target.files[0])}
           required
+          className="w-full"
         />
       </div>
 
-      <button type="submit" style={{ marginTop: 10 }}>Upload</button>
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+      >
+        Upload
+      </button>
 
-      {message && <p>{message}</p>}
+      {message && <p className="mt-3 text-sm text-gray-700">{message}</p>}
     </form>
   );
 }

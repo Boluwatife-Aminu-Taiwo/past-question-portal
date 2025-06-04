@@ -6,6 +6,17 @@ from app.database import Base
 
 Base = declarative_base()
 
+class Course(Base):
+    __tablename__ = "courses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, index=True)
+    title = Column(String)
+    unit = Column(String)
+    status = Column(String) 
+    level = Column(String)
+    past_questions = relationship("PastQuestion", back_populates="course")
+
 class PastQuestion(Base):
     __tablename__ = "past_questions"
 
@@ -20,14 +31,3 @@ class PastQuestion(Base):
     course = relationship("Course", back_populates="past_questions")
     
 
-class Course(Base):
-    __tablename__ = "courses"
-
-    id = Column(Integer, primary_key=True, index=True)
-    code = Column(String, unique=True, index=True)
-    title = Column(String)
-    unit = Column(String)
-    status = Column(String)  # like "Compulsory", "Elective"
-    level = Column(String)
-
-    past_questions = relationship("PastQuestion", back_populates="course")

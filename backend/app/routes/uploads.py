@@ -20,22 +20,22 @@ URL = "https://tech.ui.edu.ng/courses-8"
 UPLOAD_DIR = Path("app/uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-metadata_file = Path("uploads/metadata.json")
+# metadata_file = Path("uploads/metadata.json")
 
-# Save upload metadata locally (optional)
-def save_metadata(filename, course_code):
-    metadata = {}
-    if metadata_file.exists():
-        with open(metadata_file, "r") as f:
-            metadata = json.load(f)
+# # Save upload metadata locally (optional)
+# def save_metadata(filename, course_code):
+#     metadata = {}
+#     if metadata_file.exists():
+#         with open(metadata_file, "r") as f:
+#             metadata = json.load(f)
 
-    metadata[filename] = {
-        "course_code": course_code,
-        "uploaded_at": datetime.now().isoformat()
-    }
+#     metadata[filename] = {
+#         "course_code": course_code,
+#         "uploaded_at": datetime.now().isoformat()
+#     }
 
-    with open(metadata_file, "w") as f:
-        json.dump(metadata, f, indent=2)
+#     with open(metadata_file, "w") as f:
+#         json.dump(metadata, f, indent=2)
 
 
 # ✅ Upload endpoint
@@ -63,7 +63,7 @@ async def upload_past_question(
     db.add(past_question)
     db.commit()
     db.refresh(past_question)
-    save_metadata(file.filename, course_code)
+    # save_metadata(file.filename, course_code)
 
     return {"message": "Upload successful", "id": past_question.id}
 
