@@ -27,6 +27,7 @@ class PastQuestion(Base):
     filename = Column(String) 
     filepath = Column(String)
     uploaded_at = Column(DateTime, default=datetime.now)
+    year = Column(String)
 
     course = relationship("Course", back_populates="past_questions")
     

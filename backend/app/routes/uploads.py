@@ -38,10 +38,11 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 #         json.dump(metadata, f, indent=2)
 
 
-# ✅ Upload endpoint
+# Upload past question endpoint
 @router.post("/upload")
 async def upload_past_question(
     course_code: str = Form(...),
+    year: str = Form(...),
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
@@ -56,9 +57,10 @@ async def upload_past_question(
 
     past_question = PastQuestion(
         course_code=course.code,
-        course_id=course.id,  # ✅ Proper link to course
+        course_id=course.id,  # Proper link to course
         filename=file.filename,
-        filepath=file_location
+        filepath=file_location,
+        year=year,
     )
     db.add(past_question)
     db.commit()
@@ -67,6 +69,7 @@ async def upload_past_question(
 
     return {"message": "Upload successful", "id": past_question.id}
 
+# upload courses endpoint
 @router.post("/courses")
 def scrape_and_save_courses(db: Session = Depends(get_db)):
     courses = fetch_courses(URL)
@@ -111,7 +114,7 @@ def scrape_and_save_courses(db: Session = Depends(get_db)):
 
 
 
-# ✅ List/filter endpoint
+# get past question endpoint
 @router.get("/past-questions", response_model=List[PastQuestionOut])
 def get_all_questions(
     course_code: str = Query(None),
@@ -128,7 +131,7 @@ def get_all_questions(
     return query.all()
 
 
-# Download endpoint
+# get pastquestion endpoint
 @router.get("/past-questions/{filename}")
 def get_file(filename: str):
     file_path = os.path.join(UPLOAD_DIR, filename)
@@ -137,8 +140,27 @@ def get_file(filename: str):
     return {"error": "File not found"}
 
 
-# List all courses
+# get courses endpoint
 @router.get("/get-courses")
 def get_courses(db: Session = Depends(get_db)):
     return db.query(Course).all()
 
+# delete past question endpoint
+
+@router.delete("/past-questions/{file_id}")
+def delete_past_question(file_id: int, db: Session = Depends(get_db)):
+    record = db.query(PastQuestion).filter(PastQuestion.id == file_id).first()
+
+    if not record:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Delete the physical file from disk
+    # file_path = UPLOAD_DIR / record.filename
+    # if file_path.exists():
+    #     file_path.unlink()
+
+    # Delete the DB record
+    db.delete(record)
+    db.commit()
+
+    return {"detail": "File deleted successfully"}
